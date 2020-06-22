@@ -55,7 +55,8 @@ async def info(ctx):
 
     # Shows the number of servers the bot is member of.
     embed.add_field(name="Server count", value=f"{len(bot.guilds)}")
-
+    embed.add_field(name="Version", value="2.0")
+    embed.add_field(name="Host", value="Google Cloud Platform Compute Engine", inline=False)
     await ctx.send(embed=embed)
 
 
