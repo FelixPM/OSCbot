@@ -3,7 +3,7 @@ from discord.ext import commands
 from google.cloud import secretmanager
 
 from osc_challonge import get_players, get_ranking_data
-
+from osc_battlefy import get_standings
 
 def access_secret_version(project_id, secret_id, version_id):
     """
@@ -43,6 +43,12 @@ async def tournament(ctx, name, display='False'):
     print('tournament ' + name)
     await ctx.channel.trigger_typing()
     data = get_ranking_data(name, chal_user, chal_key, display)
+    await ctx.send(data)
+
+@bot.command()
+async def battlefy(ctx):
+    await ctx.channel.trigger_typing()
+    data = get_standings()
     await ctx.send(data)
 
 
