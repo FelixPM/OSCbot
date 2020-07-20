@@ -46,9 +46,9 @@ async def tournament(ctx, name, display='False'):
     await ctx.send(data)
 
 @bot.command()
-async def battlefy(ctx):
+async def battlefy(ctx, url):
     await ctx.channel.trigger_typing()
-    data = get_standings()
+    data = get_standings(url)
     await ctx.send(data)
 
 
