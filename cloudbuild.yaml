@@ -1,9 +1,9 @@
 steps:
   - name: gcr.io/cloud-builders/docker
-    args: [ build, -t, gcr.io/$PROJECT_ID/oscbot, . ]
+    args: [ build, -t, gcr.io/$PROJECT_ID/oscbotdev, . ]
 
   - name: gcr.io/cloud-builders/gcloud
-    args: [ compute, instance-groups, managed, rolling-action, restart, oscbot-group, --zone=us-east1-b ]
+    args: [ compute, instance-groups, managed, rolling-action, restart, oscbot-dev, --zone=us-east1-b ]
 
 images:
-  - gcr.io/$PROJECT_ID/oscbot
+  - gcr.io/$PROJECT_ID/oscbotdev
