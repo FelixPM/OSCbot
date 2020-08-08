@@ -19,7 +19,7 @@ def access_secret_version(project_id, secret_id, version_id):
 
 bot = commands.Bot(command_prefix='!')
 project_id = 'oscbot-280922'
-TOKEN = access_secret_version(project_id, 'bot_dev', 1)
+TOKEN = access_secret_version(project_id, 'bot_prod', 1)
 chal_user = access_secret_version(project_id, 'challonge_user', 1)
 chal_key = access_secret_version(project_id, 'challonge_key', 1)
 
