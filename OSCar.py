@@ -3,7 +3,7 @@ from discord.ext import commands
 from google.cloud import secretmanager
 
 from osc_challonge import get_players, get_ranking_data
-from osc_battlefy import get_standings
+from osc_battlefy import get_battlefy
 
 def access_secret_version(project_id, secret_id, version_id):
     """
@@ -38,19 +38,25 @@ async def players(ctx, name):
     await ctx.send(get_players(name, chal_user, chal_key))
 
 
-@bot.command()
+@bot.command(aliases=['t'])
 async def tournament(ctx, name, display='False'):
     print('tournament ' + name)
     await ctx.channel.trigger_typing()
     data = get_ranking_data(name, chal_user, chal_key, display)
     await ctx.send(data)
 
-@bot.command()
+@bot.command(aliases=['b'])
 async def battlefy(ctx, url):
     await ctx.channel.trigger_typing()
-    data = get_standings(url)
-    await ctx.send(data)
-
+    data = get_battlefy(url)
+    if len(data) < 2000:
+        await ctx.send(data)
+    else:
+        data_list = data.split('\n')
+        len_data = len(data_list) // 2
+        all_data = [data_list[:len_data], data_list[len_data:]]
+        for data_chunk in all_data:
+            await ctx.send('\n'.join(data_chunk))
 
 @bot.command()
 async def info(ctx):
