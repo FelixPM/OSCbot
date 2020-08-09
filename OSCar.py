@@ -1,9 +1,10 @@
 import discord
 from discord.ext import commands
 from google.cloud import secretmanager
-
+from osc_aligulac import get_aligulac
 from osc_challonge import get_players, get_ranking_data
 from osc_battlefy import get_battlefy
+
 
 def access_secret_version(project_id, secret_id, version_id):
     """
@@ -22,6 +23,7 @@ project_id = 'oscbot-280922'
 TOKEN = access_secret_version(project_id, 'bot_prod', 1)
 chal_user = access_secret_version(project_id, 'challonge_user', 1)
 chal_key = access_secret_version(project_id, 'challonge_key', 1)
+ali_key = access_secret_version(project_id, 'aligulac_key', 1)
 
 
 @bot.event
@@ -45,6 +47,15 @@ async def tournament(ctx, name, display='False'):
     data = get_ranking_data(name, chal_user, chal_key, display)
     await ctx.send(data)
 
+
+@bot.command(aliases=['a'])
+async def aligulac(ctx, name):
+    print('tournament ' + name)
+    await ctx.channel.trigger_typing()
+    data = get_aligulac(name, ali_key)
+    await ctx.send(data)
+
+
 @bot.command(aliases=['b'])
 async def battlefy(ctx, url):
     await ctx.channel.trigger_typing()
@@ -57,6 +68,7 @@ async def battlefy(ctx, url):
         all_data = [data_list[:len_data], data_list[len_data:]]
         for data_chunk in all_data:
             await ctx.send('\n'.join(data_chunk))
+
 
 @bot.command()
 async def info(ctx):

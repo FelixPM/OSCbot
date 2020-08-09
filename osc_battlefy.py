@@ -33,7 +33,7 @@ def get_standings(master_url, tourney_url):
     soup = BeautifulSoup(results, 'html.parser')
     standings_html = soup.find('table', class_='bfy-table')
     df = pd.read_html(str(standings_html))[0]
-    df.drop('Unnamed: 1', axis=1, inplace=True)
+    df = df.loc[:, ['Rank', 'Player']]
     standings_dict = df.set_index('Player').to_dict(orient='index')
     return standings_dict
 
