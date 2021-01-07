@@ -3,7 +3,7 @@ pychal
 pytz~=2019.3
 requests~=2.23.0
 google-cloud-secret-manager==0.2.0
-lxml==4.5.2
+lxml==4.6.2
 pandas==1.0.5
 beautifulsoup4==4.9.1
 async_retrying
