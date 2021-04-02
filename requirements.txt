@@ -1,7 +1,7 @@
 discord.py
 pychallonge @ git+http://github.com/ZEDGR/pychal@825823b72ae0f7c9b038b82da428352f3868b862
 pytz~=2019.3
-requests~=2.23.0
+requests
 google-cloud-secret-manager==0.2.0
 lxml==4.5.2
 pandas==1.0.5
