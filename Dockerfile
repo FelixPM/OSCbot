@@ -2,7 +2,7 @@ FROM python:3.7-slim
 
 # Install app dependencies
 COPY requirements.txt ./
-RUN pip install -r requirements.txt
+RUN apt-get update && apt-get install -y git && pip install -r requirements.txt
 
 # Create app directory
 WORKDIR /app
