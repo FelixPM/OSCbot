@@ -109,25 +109,31 @@ def get_battlefy(url_battlefy):
 
     standings_dict = get_standings(url, url_battlefy)
     all_matches = get_matches(url, url_battlefy)
-
+    
+    name_dict = {}
+    for name in standings_dict.keys():
+        name_dict[name.split('#')[0]] = name
+        
     loop = asyncio.get_event_loop()
     loop.run_until_complete(bulk_crawl_and_write(all_matches, url_battlefy))
 
     for match_num, match_players in all_matches.items():
-
         if not match_players['walkover'] and match_players['loser'] != 'BYE':
-            if 'Won' not in standings_dict[match_players['winner'].split('\xa0 \xa0')[-1]]:
-                standings_dict[match_players['winner'].split('\xa0 \xa0')[-1]]['Played'] = 1
-                standings_dict[match_players['winner'].split('\xa0 \xa0')[-1]]['Won'] = 1
+            winner = name_dict[match_players['winner'].split('\xa0 \xa0')[-1].split('#')[0]]
+            loser = name_dict[match_players['loser'].split('\xa0 \xa0')[-1].split('#')[0]]
+            if 'Won' not in standings_dict[winner]:
+                standings_dict[winner]['Played'] = 1
+                standings_dict[winner]['Won'] = 1
             else:
-                standings_dict[match_players['winner'].split('\xa0 \xa0')[-1]]['Played'] += 1
-                standings_dict[match_players['winner'].split('\xa0 \xa0')[-1]]['Won'] += 1
+                standings_dict[winner]['Played'] += 1
+                standings_dict[winner]['Won'] += 1
 
-            if 'Played' not in standings_dict[match_players['loser'].split('\xa0 \xa0')[-1]]:
-                standings_dict[match_players['loser'].split('\xa0 \xa0')[-1]]['Played'] = 1
-                standings_dict[match_players['loser'].split('\xa0 \xa0')[-1]]['Won'] = 0
+            if 'Played' not in standings_dict[loser]:
+                standings_dict[loser]['Played'] = 1
+                standings_dict[loser]['Won'] = 0
             else:
-                standings_dict[match_players['winner'].split('\xa0 \xa0')[-1]]['Played'] += 1
+                standings_dict[winner]['Played'] += 1
+                
     walkover = []
     results = ''
     for key, value in standings_dict.items():
