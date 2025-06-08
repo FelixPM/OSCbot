@@ -1,10 +1,10 @@
 steps:
   - name: gcr.io/cloud-builders/docker
-    args: [ build, -t, us-central1-docker.pkg.dev/$PROJECT_ID/oscbot-dev, . ]
+    args: [ build, -t, us-central1-docker.pkg.dev/$PROJECT_ID/oscbot-dev:latest, . ]
 
   - name: gcr.io/cloud-builders/gcloud
     args: [ compute, instance-groups, managed, rolling-action, restart, oscbot-dev-group, --zone=us-central1-c ]
 
 images:
-  - us-central1-docker.pkg.dev/$PROJECT_ID/oscbot-dev
+  - us-central1-docker.pkg.dev/$PROJECT_ID/oscbot-dev:latest
 
