@@ -23,7 +23,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 project_id = 'oscbot-280922'
-token = access_secret_version(project_id, 'bot_dev', 'latest')
+token = access_secret_version(project_id, 'bot_prod', 'latest')
 chal_user = access_secret_version(project_id, 'challonge_user', 'latest')
 chal_key = access_secret_version(project_id, 'challonge_key', 'latest')
 ali_key = access_secret_version(project_id, 'aligulac_key', 'latest')
