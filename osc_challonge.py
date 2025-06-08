@@ -38,7 +38,7 @@ def get_challonge_data(name, user, key):
     }
 
     try:
-        response = requests.request('GET', 'https://api.challonge.com/v1/tournaments/15975081.json', 
+        response = requests.request('GET', url, 
         headers={"User-Agent": 'osc-bot'}, 
         auth=(user,key), 
         params=payload)
