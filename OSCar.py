@@ -3,7 +3,7 @@ from discord.ext import commands
 from google.cloud import secretmanager
 from osc_aligulac import get_aligulac
 from osc_challonge import get_players, get_ranking_data
-#from osc_battlefy import get_battlefy
+from osc_battlefy import get_battlefy
 import requests
 
 def access_secret_version(project_id, secret_id, version_id):
