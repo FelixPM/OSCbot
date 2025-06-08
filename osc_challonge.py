@@ -2,10 +2,9 @@ import json
 import re
 from math import floor, log
 from urllib.parse import urlparse
-
-import challonge
+import requests
 import pytz
-
+from datetime import datetime
 from osc_matcherino import get_matcherino_data
 
 
@@ -18,9 +17,37 @@ def get_tourney_points(ttype, OSC_points_dict, hold_third_place_match, tournamen
 
 
 def get_challonge_data(name, user, key):
-    challonge.set_credentials(user, key)
-    matches = challonge.tournaments.show(name, include_participants=1, include_matches=1)
-    return matches
+    """
+    Gets tournament data from the Challonge API using direct HTTP requests.
+
+    Args:
+        name: The tournament URL or ID.
+        user: Your Challonge username.
+        key: Your Challonge API key.
+
+    Returns:
+        A dictionary containing the tournament data, or None if an error occurred.
+    """
+    base_url = "https://api.challonge.com/v1"
+    endpoint = f"/tournaments/{name}.json"
+    url = base_url + endpoint
+
+    payload = {
+        "include_participants": 1,
+        "include_matches": 1,
+    }
+
+    try:
+        response = requests.request('GET', 'https://api.challonge.com/v1/tournaments/15975081.json', 
+        headers={"User-Agent": 'osc-bot'}, 
+        auth=(user,key), 
+        params=payload)
+        response.raise_for_status()  # Raise an HTTPError for bad responses (4xx or 5xx)
+        data = response.json()
+        return data['tournament'] # The API usually returns data nested under 'tournament'
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching Challonge data: {e}")
+        return None
 
 
 def get_players(url, user, key):
@@ -134,7 +161,7 @@ def get_ranking_data(url, user, key, display='False'):
 
     matches = get_challonge_data(name, user, key)
 
-    started_at = matches['started_at'].astimezone(pytz.timezone("Asia/Seoul")).strftime("%d/%m/%Y")
+    started_at = datetime.fromisoformat(matches['started_at']).astimezone(pytz.timezone("Asia/Seoul")).strftime("%d/%m/%Y")
 
     tournament_name = matches['name']
 

@@ -1,5 +1,4 @@
-FROM python:3.7-slim
-
+FROM python:3.11-slim
 # Install app dependencies
 COPY requirements.txt ./
 RUN apt-get update && apt-get install -y git && pip install -r requirements.txt

@@ -1,10 +1,6 @@
-discord.py
-pychallonge @ git+http://github.com/ZEDGR/pychal@825823b72ae0f7c9b038b82da428352f3868b862
-pytz~=2019.3
-requests
-google-cloud-secret-manager==0.2.0
-lxml==4.5.2
-pandas==1.0.5
-beautifulsoup4==4.9.1
-async_retrying
-nest_asyncio
+discord.py~=2.5.2
+requests~=2.32.3
+google-cloud-secret-manager~=2.24.0
+beautifulsoup4~=4.13.4
+nest_asyncio~=1.6.0
+pytz~=2025.2

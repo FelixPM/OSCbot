@@ -3,8 +3,8 @@ from discord.ext import commands
 from google.cloud import secretmanager
 from osc_aligulac import get_aligulac
 from osc_challonge import get_players, get_ranking_data
-from osc_battlefy import get_battlefy
-
+#from osc_battlefy import get_battlefy
+import requests
 
 def access_secret_version(project_id, secret_id, version_id):
     """
@@ -13,17 +13,20 @@ def access_secret_version(project_id, secret_id, version_id):
     """
     client = secretmanager.SecretManagerServiceClient()
     name = client.secret_version_path(project_id, secret_id, version_id)
-    response = client.access_secret_version(name)
+    request = secretmanager.AccessSecretVersionRequest(name=name)  # Create the request object
+    response = client.access_secret_version(request)  # Pass the request object
     payload = response.payload.data.decode('UTF-8')
     return payload
 
 
-bot = commands.Bot(command_prefix='!')
+intents = discord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(command_prefix='!', intents=intents)
 project_id = 'oscbot-280922'
-TOKEN = access_secret_version(project_id, 'bot_prod', 1)
-chal_user = access_secret_version(project_id, 'challonge_user', 1)
-chal_key = access_secret_version(project_id, 'challonge_key', 1)
-ali_key = access_secret_version(project_id, 'aligulac_key', 1)
+token = access_secret_version(project_id, 'bot_dev', 'latest')
+chal_user = access_secret_version(project_id, 'challonge_user', 'latest')
+chal_key = access_secret_version(project_id, 'challonge_key', 'latest')
+ali_key = access_secret_version(project_id, 'aligulac_key', 'latest')
 
 
 @bot.event
@@ -43,32 +46,37 @@ async def players(ctx, name):
 @bot.command(aliases=['t'])
 async def tournament(ctx, name, display='False'):
     print('tournament ' + name)
-    await ctx.channel.trigger_typing()
-    data = get_ranking_data(name, chal_user, chal_key, display)
+    async with ctx.channel.typing():
+        data = get_ranking_data(name, chal_user, chal_key, display)
     await ctx.send(data)
 
 
 @bot.command(aliases=['a'])
 async def aligulac(ctx, name):
     print('tournament ' + name)
-    await ctx.channel.trigger_typing()
-    data = get_aligulac(name, ali_key)
+    async with ctx.channel.typing():
+        data = get_aligulac(name, ali_key)
     await ctx.send(data)
 
 
 @bot.command(aliases=['b'])
 async def battlefy(ctx, url):
-    await ctx.channel.trigger_typing()
-    data = get_battlefy(url)
-    if len(data) < 2000:
-        await ctx.send(data)
-    else:
-        data_list = data.split('\n')
-        len_data = len(data_list) // 2
-        all_data = [data_list[:len_data], data_list[len_data:]]
-        for data_chunk in all_data:
-            await ctx.send('\n'.join(data_chunk))
-
+    await ctx.send("Starting a long process... this may take a while.")
+    try:
+        data = await get_battlefy(url, ctx)
+        await ctx.send("Processing complete.")
+        if len(data) < 2000:
+            await ctx.send(data)
+        else:
+            data_list = data.split('\n')
+            len_data = len(data_list) // 2
+            all_data = [data_list[:len_data], data_list[len_data:]]
+            for data_chunk in all_data:
+                await ctx.send('\n'.join(data_chunk))
+    except Exception as e:
+        await ctx.send(f"An error occurred: {e}")
+        return
+    
 
 @bot.command()
 async def info(ctx):
@@ -96,4 +104,4 @@ async def help(ctx):
     await ctx.send(embed=embed)
 
 
-bot.run(TOKEN)
+bot.run(token)
