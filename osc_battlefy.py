@@ -184,6 +184,32 @@ async def bulk_crawl_and_write(all_matches: dict, url_battlefy: str, progress_ca
             )
         await asyncio.gather(*tasks)
 
+def get_full_player_name(scraped_name_field, player_dict):
+    """
+    Attempts to match a partial, scraped player name to the full name 
+    in the player dictionary keys.
+
+    Args:
+        scraped_name_field (str): The full string from the winner/loser field                                    
+        player_dict (dict): The dictionary of full player names.
+    Returns:
+        str or None: The full player name (key) if a match is found, otherwise None.
+    """
+    # 1. Clean the scraped name to get the partial player name
+    # Split by the non-breaking space/flag delimiter '\xa0 \xa0'
+    partial_name_with_ellipsis = scraped_name_field.split('\xa0 \xa0')[-1]
+
+    # Remove the ellipsis '...' and any trailing '#' or spaces
+    # We remove '#' just in case a scraped name *does* include it (e.g., if it's short)
+    # We strip any spaces just to be safe.
+    partial_name = partial_name_with_ellipsis.replace('...', '').split('#')[0].strip()
+    if partial_name in player_dict.keys():
+        return player_dict[partial_name]
+    else:
+        for full_name in player_dict.keys():
+            if full_name.startswith(partial_name):
+                return player_dict[full_name ]
+    return None  
 
 async def get_battlefy(url_battlefy, ctx):
     url = scrapo + '?url={}{}&ele={}'
@@ -216,8 +242,8 @@ async def get_battlefy(url_battlefy, ctx):
 
     for match_num, match_players in all_matches.items():
         if not match_players['walkover'] and match_players['loser'] != 'BYE':
-            winner = name_dict[match_players['winner'].split('\xa0 \xa0')[-1].split('#')[0]]
-            loser = name_dict[match_players['loser'].split('\xa0 \xa0')[-1].split('#')[0]]
+            winner = get_full_player_name(match_players['winner'], name_dict)
+            loser = get_full_player_name(match_players['loser'], name_dict)
             if 'Won' not in standings_dict[winner]:
                 standings_dict[winner]['Played'] = 1
                 standings_dict[winner]['Won'] = 1
