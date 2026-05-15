@@ -68,14 +68,21 @@ async def battlefy(ctx, url):
         if len(data) < 2000:
             await ctx.send(data)
         else:
-            data_list = data.split('\n')
-            len_data = len(data_list) // 2
-            all_data = [data_list[:len_data], data_list[len_data:]]
-            for data_chunk in all_data:
-                await ctx.send('\n'.join(data_chunk))
+            # Send in chunks of 1900 to leave room for formatting/buffer
+            start = 0
+            while start < len(data):
+                end = start + 1900
+                # Optional: Find the last newline within this chunk 
+                # so we don't break a line in the middle
+                if end < len(data):
+                    last_newline = data.rfind('\n', start, end)
+                    if last_newline != -1:
+                        end = last_newline
+
+                await ctx.send(data[start:end].strip())
+                start = end
     except Exception as e:
         await ctx.send(f"An error occurred: {e}")
-        return
     
 
 @bot.command()
