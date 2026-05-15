@@ -136,7 +136,7 @@ async def fetch_html(url: str, url_battlefy: str, session: ClientSession, **kwar
     kwargs are passed to `session.request()`.
     """
     retry_count = 0
-    while retry_count < 10:
+    while retry_count < 30:
         try:
             url_match = scrapo + '?url=' + url_battlefy + 'match/' + url + '&ele=team-name'
             resp = await session.request(method="GET", url=url_match, **kwargs)
@@ -144,11 +144,20 @@ async def fetch_html(url: str, url_battlefy: str, session: ClientSession, **kwar
             html = await resp.text()
             return html, resp.status
         except Exception as e:
-            print(f"Error fetching {url_match}: {e}. Retrying in 1 second.")
+            wait_time = 2 ** retry_count
+            if hasattr(e, 'status') and e.status == 429:
+                wait_time = min(2 * (2 ** retry_count), 120)
+            else:
+                wait_time = min(wait_time, 30)
+            print(f"Error fetching {url_match}: {e}. Retrying in {wait_time} seconds.")
             retry_count += 1
-            await asyncio.sleep(1)
+            if retry_count == 30:
+                print("Max retries reached")
+            await asyncio.sleep(wait_time)
 
     return "", 500 # Return empty string and 500 status after retries fail
+
+
 async def parse(url: str, url_battlefy: str, session: ClientSession, **kwargs):
     """Find HREFs in the HTML of `url`."""
 
@@ -175,7 +184,7 @@ async def write_one(all_matches: dict, key: int, value: dict, url_battlefy: str,
 
 async def bulk_crawl_and_write(all_matches: dict, url_battlefy: str, progress_callback=None):
     """Crawl & write concurrently to `file` for multiple `urls`."""
-    connector = aiohttp.TCPConnector(limit=50)
+    connector = aiohttp.TCPConnector(limit=20)
     async with ClientSession(connector=connector) as session:
         tasks = []
         for key, value in all_matches.items():
